@@ -1,0 +1,76 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.12'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'org.sonarqube' version '3.1.1'
+	id 'jacoco'
+	id "com.gorylenko.gradle-git-properties" version "2.4.1"
+}
+
+group = 'com.blogsite'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '11'
+}
+
+sourceSets {
+	main {
+		resources {
+			srcDirs = ['src/main/resources']
+		}
+	}
+}
+
+ext {
+	baseVersion = '1.0.0'
+	set('springCloudVersion', "2021.0.2")
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-web-services'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.hibernate:hibernate-core-jakarta:5.6.15.Final'
+	implementation 'org.apache.kafka:kafka-clients'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'org.projectlombok:lombok:1.18.22'
+	annotationProcessor 'org.projectlombok:lombok:1.18.22'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.2.32'
+	implementation 'pl.project13.maven:git-commit-id-plugin:4.9.10'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+//jacocoTestReport {
+//	reports {
+//		xml.enabled true
+//	}
+//}
+sonarqube {
+	properties {
+		property 'sonar.projectKey', 'Blog-Service'
+		property 'sonar.projectName', 'BlogSite-BlogService'
+		property 'sonar.coverage.exclusions', "**/test/**"
+		property "sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacoco/test/jacocoTestReport.xml"
+	}
+}
+
+project.tasks["sonarqube"].dependsOn "jacocoTestReport"
